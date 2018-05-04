@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package projetocafe;
+package view;
 import javax.swing.*;
 import java.awt.*;
 
@@ -32,11 +32,11 @@ public class Menu extends JFrame {
        
     usuario = new JLabel("");     
     menu = new JLabel("MENU");
-    nomeusuario = new JLabel("Usu√°rio:");
+    nomeusuario = new JLabel("Usu·rio:");
     contrestoque= new JButton("Controle de Estoque");
     contrpedidos= new JButton("Pedidos");
     contrcardapio= new JButton("Cardapio");
-    contrfuncionarios= new JButton("Controle de Funcion√°rios");
+    contrfuncionarios= new JButton("Controle de Funcion·rios");
     fornecedores= new JButton("Fornecedores");
     logout= new JButton("Logout");
     

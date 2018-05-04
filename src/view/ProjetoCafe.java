@@ -1,11 +1,20 @@
-package projetocafe;
+package view;
 import javax.swing.*;
+
+import controller.EstoqueJbdcDAO;
+import controller.JdbUtil;
+import model.estoque;
+
 import java.awt.*;
+import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ProjetoCafe extends JFrame{
 	JLabel nometela,nome,sen;
     JButton login,Sair,fornecedores;
     JTextField nomedousuario, senha;
+    Menu Menu;
 public ProjetoCafe(){
         
         super("login");
@@ -17,7 +26,7 @@ public ProjetoCafe(){
        Image imga = img.getScaledInstance(400,500,java.awt.Image.SCALE_SMOOTH);
       imagem = new ImageIcon(imga);
       JLabel imaa= new JLabel(imagem);
-       
+       //Adicionar Cadastro
        
      
     nometela = new JLabel("LOGIN");
@@ -49,7 +58,15 @@ public ProjetoCafe(){
      nometela.setForeground(Color.red);
     
      
-     
+     	login.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				Menu = new Menu();
+				Menu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				Menu.setVisible(true);
+				setVisible(false);
+				dispose();
+			}
+	    });
     
    
      
@@ -79,10 +96,15 @@ public static void main(String[] args) {
     app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 }
 
-private class Menu extends JFrame {
+private class Menu extends JFrame implements ActionListener{
     
    JLabel nomeusuario,menu,imagem,img,imgg,imga,imaa,lblbackground,usuario;
    JButton contrestoque,contrpedidos,contrcardapio,contrfuncionarios,fornecedores,logout;
+   Fornecedores Fornecedores;
+   Funcionario Funcionario;
+   Cardapio Cardapio;
+   Pedidos Pedidos;
+   Estoque Estoque;
    
    public Menu(){
    
@@ -109,7 +131,55 @@ private class Menu extends JFrame {
    logout= new JButton("Logout");
    
 
+   contrestoque.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+			Estoque = new Estoque();
+			Estoque.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Estoque.setVisible(true);
+			setVisible(false);
+			dispose();
+		}
+   });
    
+   contrpedidos.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+			Pedidos = new Pedidos();
+			Pedidos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Pedidos.setVisible(true);
+			setVisible(false);
+			dispose();
+		}
+   });
+   
+   contrcardapio.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+			Cardapio = new Cardapio();
+			Cardapio.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Cardapio.setVisible(true);
+			setVisible(false);
+			dispose();
+		}
+   });
+   
+   contrfuncionarios.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+			Funcionario = new Funcionario();
+			Funcionario.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Funcionario.setVisible(true);
+			setVisible(false);
+			dispose();
+		}
+   });
+   
+   fornecedores.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+			Fornecedores = new Fornecedores();
+			Fornecedores.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Fornecedores.setVisible(true);
+			setVisible(false);
+			dispose();
+		}
+   });
    
    menu.setBounds(270,50,300,100);
    nomeusuario.setBounds(50,20,80,20);
@@ -151,6 +221,12 @@ private class Menu extends JFrame {
    setResizable(false);
    setLocationRelativeTo(null);
    }
+
+@Override
+public void actionPerformed(ActionEvent e) {
+	// TODO Auto-generated method stub
+	
+}
 }
    private class Fornecedores extends JFrame{
 		JToolBar barra;
@@ -161,6 +237,7 @@ private class Menu extends JFrame {
 		JTable forns;
 		JScrollPane scroll;
 		String[] colunas = {"Fornecedores", "Descrição", "Telefone", "Endereço"};
+		//Adicionar CEP, CIDADE e CNPJ
 		Object[][] dados = new Object[][]{{"", "", "", ""}};
 		public Fornecedores(){
 			super("Controle de Fornecedores");
@@ -252,7 +329,7 @@ private class Menu extends JFrame {
 			String[] colunas = {"Prato","Descrição", "Tipo", "Ingrediente"}, ingredientes = {"",""}, tipos = {"Torta","Bolo","Salgado","Bebidas Frias","Bebidas Quentes"};
 			Object[][] dados = new Object[][]{{"","", "", "", "", ""}};
 			public Cardapio(){
-				super("Controle de Funcionários");
+				super("Cardápio");
 				Container tela = getContentPane();
 				tela.setLayout(null);
 
@@ -342,10 +419,10 @@ private  class Pedidos extends JFrame{
 	JLabel mesal, nomel, pagl, pedidol;
 	JTable Pedid;
 	JScrollPane scroll;
-	String[] colunas = {"Mesa","Nome", "Método de Pagamento", "Pedido"}, pedidos = {"",""}, paga = {"Dinheiro","Crédito","Débito"};
+	String[] colunas = {"funcionário","","mesa","nome", "Método de Pagamento", "Pedido"}, pedidos = {"",""}, paga = {"Dinheiro","Crédito","Débito"};
 	Object[][] dados = new Object[][]{{"","", "", "", "", ""}};
 	public Pedidos(){
-		super("Controle de Funcionários");
+		super("Controle de Pedidos");
 		Container tela = getContentPane();
 		tela.setLayout(null);
 		
@@ -424,30 +501,140 @@ private  class Pedidos extends JFrame{
 		
 	}
 }
-private  class Estoque extends JFrame{
+private class Estoque extends JFrame{
+		JToolBar barra;
+		JButton add, rem, menu, logout;
+		ImageIcon icone, imgadd,imgrem;
+		JTextField item, quant, desc;
+		JComboBox fornecedor;
+		JLabel iteml, quantl, descl, fornecedorl;
+		JTable estoq;
+		JScrollPane scroll;
+		String[] colunas = {"CNPJ","Nome", "Quantidade", "Descrição"},fornecedores = {"",""};
+		Object[][] dados = new Object[][]{{"","","",""}};
+		public Estoque(){
+			super("Controle de Fornecedores");
+			Container tela = getContentPane();
+			tela.setLayout(null);
+			
+			try{
+				estoque estoque = new estoque();
+				Connection connection = null;
+				try {
+					connection = JdbUtil.getConnection();
+					EstoqueJbdcDAO estoqueJbdcDAO = new EstoqueJbdcDAO(connection);
+					
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				EstoqueJbdcDAO estoqueJbdcDAO = new EstoqueJbdcDAO(connection);
+				dados = estoqueJbdcDAO.carregar();
+			}
+			catch(SQLException e1){
+				e1.printStackTrace();
+			}
+			
+							
+							ImageIcon imagem = new ImageIcon("cafeestoque.png");
+						    Image img = imagem.getImage();
+						    Image imga = img.getScaledInstance(400,500,java.awt.Image.SCALE_SMOOTH);
+						    imagem = new ImageIcon(imga);
+						    JLabel imaa = new JLabel(imagem);
+						    imaa.setBounds(950,100,400,500);
+						    
+						    icone = new ImageIcon("Icon.png");
+							imgadd = new ImageIcon("Add.png");
+							imgrem = new ImageIcon("Rem.png");
+							setIconImage(icone.getImage());
+							
+							add = new JButton(imgadd);
+							rem = new JButton(imgrem);
+							menu = new JButton("Menu");
+							logout = new JButton("Logout");
+							
+							logout.setBounds(1150,600,100,50);
+							menu.setBounds(1150,655,100,50);
+							
+							add.setToolTipText("Adiciona um novo item");
+							rem.setToolTipText("Remove o(s) item(s) selecionado(s)");
+							
+							add.addActionListener(new ActionListener(){
+								public void actionPerformed(ActionEvent e){
+			
+								}
+						    });
+							barra = new JToolBar("Barra de Comandos");
+							barra.add(add);
+							barra.add(rem);
+							barra.setBounds(1,1,1600,50);
+							
+							iteml = new JLabel("Item");
+							quantl = new JLabel("Quantidade");
+							descl = new JLabel("Descrição");
+							fornecedorl = new JLabel("Fornecedor");
+							
+							iteml.setBounds(50,100,200,20);
+							quantl.setBounds(50,140,200,20);
+							descl.setBounds(50,180,200,20);
+							fornecedorl.setBounds(50,220,200,20);
+							
+							item = new JTextField();
+							quant = new JTextField();
+							desc = new JTextField();
+							fornecedor = new JComboBox(fornecedores);
+							fornecedor.setMaximumRowCount(5);
+							
+							item.setBounds(210,100,500,20);
+							quant.setBounds(210,140,500,20);
+							desc.setBounds(210,180,500,20);
+							fornecedor.setBounds(210,220,500,20);
+							
+							estoq = new JTable(dados,colunas);
+							scroll = new JScrollPane(estoq);
+							scroll.setBounds(50,350,950,350);
+							
+							tela.add(barra);
+							tela.add(imaa);
+							tela.add(scroll);
+							tela.add(item);
+							tela.add(quant);
+							tela.add(desc);
+							tela.add(fornecedor);
+							tela.add(iteml);
+							tela.add(quantl);
+							tela.add(descl);
+							tela.add(fornecedorl);
+							tela.add(logout);
+							tela.add(menu);
+							setIconImage(icone.getImage());
+							setVisible(true);
+							setExtendedState(MAXIMIZED_BOTH);
+							setResizable(false);
+}
+private class Funcionario extends JFrame{
 	JToolBar barra;
 	JButton add, rem, menu, logout;
 	ImageIcon icone, imgadd,imgrem;
-	JTextField item, quant, desc;
-	JComboBox fornecedor;
-	JLabel iteml, quantl, descl, fornecedorl;
-	JTable estoq;
+	JTextField txbnome,txbRG, txbCPF, txbendereco, txbtelefone, txbcelular, txbemail, txbCEP, txbcidade, txbfuncao, txbnumdep, txbusuario, txbsenha;
+	JLabel lblnome,lblRG, lblCPF, lblendereco, lbltelefone, lblcelular, lblemail, lblCEP, lblcidade, lblfuncao, lblnumdep, lblusuario, lblsenha;
+	JTable funcs;
 	JScrollPane scroll;
-	String[] colunas = {"Item","Quantidade", "Descrição", "Fornecedor"}, fornecedores = {"",""};
-	Object[][] dados = new Object[][]{{"","", "", "", "", ""}};
-	public Estoque(){
+	String[] colunas = {"nome","RG", "CPF", "endereco", "telefone", "celular", "email", "CEP", "cidade", "funcao", "num_dep", "usuario", "senha"};
+	Object[][] dados = new Object[][]{{"nome1","RG1", "CPF1", "endereco1", "telefone1", "celular1", "email1", "CEP1", "cidade1", "funcao1", "num_dep1", "usuario1", "senha1"},{"nome2","RG2", "CPF2", "endereco2", "telefone2", "celular2", "email2", "CEP2", "cidade2", "funcao2", "num_dep2", "usuario2", "senha2"}};
+	public Funcionario(){
 		super("Controle de Funcionários");
 		Container tela = getContentPane();
 		tela.setLayout(null);
 		
-		ImageIcon imagem = new ImageIcon("cafeestoque.png");
+		ImageIcon imagem = new ImageIcon("cafeefornecedores.png");
 	    Image img = imagem.getImage();
 	    Image imga = img.getScaledInstance(400,500,java.awt.Image.SCALE_SMOOTH);
 	    imagem = new ImageIcon(imga);
-	    JLabel imaa = new JLabel(imagem);
-	    imaa.setBounds(950,100,400,500);
+	    JLabel imaa= new JLabel(imagem);
+	    imaa.setBounds(1100,100,400,500);
 	    
-	    icone = new ImageIcon("Icon.png");
+		icone = new ImageIcon("Icon.png");
 		imgadd = new ImageIcon("Add.png");
 		imgrem = new ImageIcon("Rem.png");
 		setIconImage(icone.getImage());
@@ -457,163 +644,125 @@ private  class Estoque extends JFrame{
 		menu = new JButton("Menu");
 		logout = new JButton("Logout");
 		
-		logout.setBounds(1150,600,100,50);
-		menu.setBounds(1150,655,100,50);
+		logout.setBounds(1290,600,100,50);
+		menu.setBounds(1290,655,100,50);
 		
-		add.setToolTipText("Adiciona um novo item");
-		rem.setToolTipText("Remove o(s) item(s) selecionado(s)");
+		add.setToolTipText("Adiciona um novo funcionário");
+		rem.setToolTipText("Remove o(s) funcionário(s) selecionado(s)");
 		
 		barra = new JToolBar("Barra de Comandos");
 		barra.add(add);
 		barra.add(rem);
 		barra.setBounds(1,1,1600,50);
 		
-		iteml = new JLabel("Item");
-		quantl = new JLabel("Quantidade");
-		descl = new JLabel("Descrição");
-		fornecedorl = new JLabel("Fornecedor");
+		lblnome  = new JLabel("Nome::.");
+		lblRG = new JLabel("RG::.");
+		lblCPF = new JLabel("CPF::.");
+		lblendereco = new JLabel("Endereço::.");
+		lbltelefone = new JLabel("Telefone::.");
+		lblcelular = new JLabel("Celular::.");
+		lblemail = new JLabel("Email::.");
+		lblCEP = new JLabel("Cep::.");
+		lblcidade = new JLabel("Cidade::.");
+		lblfuncao = new JLabel("Função::.");
+		lblnumdep = new JLabel("Num_Dependentes::.");
+		lblusuario = new JLabel("Usuario::.");
+		lblsenha = new JLabel("Senha::.");
 		
-		iteml.setBounds(50,100,200,20);
-		quantl.setBounds(50,140,200,20);
-		descl.setBounds(50,180,200,20);
-		fornecedorl.setBounds(50,220,200,20);
+		lblnome.setBounds(50,100,200,20);
+		lblRG .setBounds(50,150,200,20);
+		lblCPF .setBounds(50,200,200,20);
+		lblendereco .setBounds(50,250,200,20);
+		lbltelefone .setBounds(50,300,200,20);
+		lblcelular .setBounds(50,350,200,20);
+		lblemail .setBounds(500,350,200,20);
+		lblCEP .setBounds(500,100,200,20);
+		lblcidade .setBounds(500,150,200,20);
+		lblfuncao .setBounds(500,200,200,20);
+		lblnumdep .setBounds(500,250,200,20);
+		lblusuario .setBounds(500,300,200,20);
+		lblsenha .setBounds(820,300,200,20);
 		
-		item = new JTextField();
-		quant = new JTextField();
-		desc = new JTextField();
-		fornecedor = new JComboBox(fornecedores);
-		fornecedor.setMaximumRowCount(5);
-		
-		item.setBounds(210,100,500,20);
-		quant.setBounds(210,140,500,20);
-		desc.setBounds(210,180,500,20);
-		fornecedor.setBounds(210,220,500,20);
-		
-		estoq = new JTable(dados,colunas);
-		scroll = new JScrollPane(estoq);
+		txbnome  = new JTextField();
+		txbRG = new JTextField();
+		txbCPF = new JTextField();
+		txbendereco = new JTextField();
+		txbtelefone = new JTextField();
+		txbcelular = new JTextField();
+		txbemail = new JTextField();
+		txbCEP = new JTextField();
+		txbcidade = new JTextField();
+		txbfuncao = new JTextField();
+		txbnumdep = new JTextField();
+		txbusuario = new JTextField();
+		txbsenha = new JTextField();
+		funcs = new JTable(dados,colunas);
+		scroll = new JScrollPane(funcs);
 		scroll.setBounds(50,350,950,350);
+		
+		
+		txbnome .setBounds(130,100,200,20);
+		txbRG .setBounds(130,150,200,20);
+		txbCPF.setBounds(130,200,200,20);
+		txbendereco .setBounds(130,250,200,20);
+		txbtelefone .setBounds(130,300,200,20);
+		txbcelular.setBounds(130,350,200,20);
+		txbemail .setBounds(620,350,200,20);
+		txbCEP .setBounds(620,100,200,20);
+		txbcidade.setBounds(620,150,200,20);;
+		txbfuncao .setBounds(620,200,200,20);
+		txbnumdep .setBounds(620,250,200,20);
+		txbusuario.setBounds(620,300,200,20);
+		txbsenha .setBounds(860,300,200,20);
+		
+		
+		tela.add(txbnome); 
+		tela.add(txbRG);
+		tela.add(txbCPF);
+		tela.add(txbendereco);
+		tela.add(txbtelefone);
+		tela.add(txbcelular);
+		tela.add(txbemail);
+		tela.add(txbCEP);
+		tela.add(txbcidade);
+		tela.add(txbfuncao);
+		tela.add(txbnumdep);
+		tela.add(txbusuario);
+		tela.add(txbsenha);
+		funcs = new JTable(dados,colunas);
+		scroll = new JScrollPane(funcs);
+		scroll.setBounds(50,480,950,350);
+		
+		
+		tela.add(lblnome);  
+		tela.add(lblRG );
+	    tela.add(lblCPF); 
+		tela.add(lblendereco);
+		tela.add(lbltelefone); 
+		tela.add(lblcelular); 
+		tela.add(lblemail);
+		tela.add(lblCEP);
+		tela.add(lblcidade );
+	    tela.add(lblfuncao );
+		tela.add(lblnumdep );
+		tela.add(lblusuario );
+	    tela.add(lblsenha);
+		
 		
 		tela.add(barra);
 		tela.add(imaa);
 		tela.add(scroll);
-		tela.add(item);
-		tela.add(quant);
-		tela.add(desc);
-		tela.add(fornecedor);
-		tela.add(iteml);
-		tela.add(quantl);
-		tela.add(descl);
-		tela.add(fornecedorl);
+		tela.add(lblfuncao);        
+		tela.add(lblnome);
+	
 		tela.add(logout);
 		tela.add(menu);
 		setIconImage(icone.getImage());
 		setVisible(true);
 		setExtendedState(MAXIMIZED_BOTH);
 		setResizable(false);
-		
-		
-	}
+		}
 }
-	 private class Funcionario extends JFrame{
-			JToolBar barra;
-			JButton add, rem, menu, logout;
-			ImageIcon icone, imgadd,imgrem;
-			JTextField func, cargo, desc, tel, end, sal;
-			JLabel funcl, cargol, descl, tell, endl, sall;
-			JTable funcs;
-			JScrollPane scroll;
-			String[] colunas = {"Funcionários","Cargo", "Descrição", "Telefone", "Endereço", "Salário"};
-			Object[][] dados = new Object[][]{{"Funcionários1","Cargo1", "Descrição1", "Telefone1", "Endereço1", "Salário1"},{false,"Funcionários2","Cargo2", "Descrição2", "Telefone2", "Endereço2", "Salário2"}};
-			public Funcionario(){
-				super("Controle de Funcionários");
-				Container tela = getContentPane();
-				tela.setLayout(null);
-				
-				ImageIcon imagem = new ImageIcon("cafeefornecedores.png");
-			    Image img = imagem.getImage();
-			    Image imga = img.getScaledInstance(400,500,java.awt.Image.SCALE_SMOOTH);
-			    imagem = new ImageIcon(imga);
-			    JLabel imaa= new JLabel(imagem);
-			    imaa.setBounds(950,100,400,500);
-			    
-				icone = new ImageIcon("Icon.png");
-				imgadd = new ImageIcon("Add.png");
-				imgrem = new ImageIcon("Rem.png");
-				setIconImage(icone.getImage());
-				
-				add = new JButton(imgadd);
-				rem = new JButton(imgrem);
-				menu = new JButton("Menu");
-				logout = new JButton("Logout");
-				
-				logout.setBounds(1150,600,100,50);
-				menu.setBounds(1150,655,100,50);
-				
-				add.setToolTipText("Adiciona um novo funcionário");
-				rem.setToolTipText("Remove o(s) funcionário(s) selecionado(s)");
-				
-				barra = new JToolBar("Barra de Comandos");
-				barra.add(add);
-				barra.add(rem);
-				barra.setBounds(1,1,1600,50);
-				
-				funcl = new JLabel("Funcionário");
-				cargol = new JLabel("Cargo");
-				descl = new JLabel("Descrição");
-				tell = new JLabel("Telefone");
-				endl = new JLabel("Endereço");
-				sall = new JLabel("Salário");
-				
-				funcl.setBounds(50,100,200,20);
-				cargol.setBounds(50,140,200,20);
-				descl.setBounds(50,180,200,20);
-				tell.setBounds(50,220,200,20);
-				endl.setBounds(50,260,200,20);
-				sall.setBounds(50,300,200,20);
-				
-				func = new JTextField();
-				cargo = new JTextField();
-				desc = new JTextField();
-				tel = new JTextField();
-				end = new JTextField();
-				sal = new JTextField();
-				
-				func.setBounds(210,100,500,20);
-				cargo.setBounds(210,140,500,20);
-				desc.setBounds(210,180,500,20);
-				tel.setBounds(210,220,500,20);
-				end.setBounds(210,260,500,20);
-				sal.setBounds(210,300,500,20);
-				
-				funcs = new JTable(dados,colunas);
-				scroll = new JScrollPane(funcs);
-				scroll.setBounds(50,350,950,350);
-				
-				tela.add(barra);
-				tela.add(imaa);
-				tela.add(scroll);
-				tela.add(func);
-				tela.add(cargo);
-				tela.add(desc);
-				tela.add(tel);
-				tela.add(end);
-				tela.add(sal);
-				tela.add(funcl);
-				tela.add(cargol);
-				tela.add(descl);
-				tela.add(tell);
-				tela.add(endl);
-				tela.add(sall);
-				tela.add(logout);
-				tela.add(menu);
-				setIconImage(icone.getImage());
-				setVisible(true);
-				setExtendedState(MAXIMIZED_BOTH);
-				setResizable(false);
-				
-				
-			}
-			
-	 }
+}
 }
 }

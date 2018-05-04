@@ -1,7 +1,14 @@
-package Janelas;
+package view;
 import javax.swing.*;
+
+import controller.CardapioJbdcDAO;
+import controller.JdbUtil;
+import model.cardapio;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 public class Cardapio extends JFrame{
 	JToolBar barra;
 	JButton add, rem, ped, menu, logout;
@@ -18,6 +25,22 @@ public class Cardapio extends JFrame{
 		Container tela = getContentPane();
 		tela.setLayout(null);
 
+		try{
+			model.Cardapio cardapio = new model.Cardapio();
+			Connection connection = null;
+			try {
+				connection = JdbUtil.getConnection();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			CardapioJbdcDAO cardapioJbdcDAO = new CardapioJbdcDAO(connection);
+			dados = cardapioJbdcDAO.carregar();
+		}
+		catch(SQLException e1){
+			e1.printStackTrace();
+		}
+		
 		ImageIcon imagem = new ImageIcon("cafecardapio.png");
 	    Image img = imagem.getImage();
 	    Image imga = img.getScaledInstance(400,500,java.awt.Image.SCALE_SMOOTH);
@@ -74,6 +97,56 @@ public class Cardapio extends JFrame{
 		Cardap = new JTable(dados,colunas);
 		scroll = new JScrollPane(Cardap);
 		scroll.setBounds(50,350,950,350);
+		
+		Cardap.requestFocus();
+		Cardap.changeSelection(0,0,false, false);
+		
+		int row = Cardap.getSelectedRow();
+		String selected = Cardap.getValueAt(row, 0).toString();
+		int row1 = Integer.parseInt(selected);
+		
+		add.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){								
+				try{
+					model.Cardapio cardapio = new model.Cardapio();
+					Connection connection = null;
+					try {
+						connection = JdbUtil.getConnection();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					cardapio.setnome(prato.getText());
+					cardapio.setdescricao(desc.getText());
+					cardapio.settipo(tipo.getText());
+					cardapio.setCNPJ(Integer.parseInt((fornecedor.getSelectedItem()).toString()));
+					CardapioJbdcDAO cardapioJbdcDAO = new CardapioJbdcDAO(connection);
+					cardapioJbdcDAO.salvar(cardapio);
+				}
+				catch(SQLException e1){
+					e1.printStackTrace();
+				}
+			}
+	    });
+		rem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){								
+				try{
+					Cardapio cardapio = new Cardapio();
+					Connection connection = null;
+					try {
+						connection = JdbUtil.getConnection();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					CardapioJbdcDAO cardapioJbdcDAO = new CardapioJbdcDAO(connection);
+					cardapioJbdcDAO.excluir(row1);
+				}
+				catch(SQLException e1){
+					e1.printStackTrace();
+				}
+			}
+	    });
 		
 		tela.add(barra);
 		tela.add(imaa);

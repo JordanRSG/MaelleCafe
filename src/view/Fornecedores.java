@@ -1,7 +1,15 @@
-package Janelas;
+package view;
 import javax.swing.*;
+
+import controller.EstoqueJbdcDAO;
+import controller.FornecedorJbdcDAO;
+import controller.JdbUtil;
+import model.Fornecedor;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 public class Fornecedores extends JFrame{
 	JToolBar barra;
 	JButton add, rem, menu, logout;
@@ -16,6 +24,22 @@ public class Fornecedores extends JFrame{
 		super("Controle de Fornecedores");
 		Container tela = getContentPane();
 		tela.setLayout(null);
+		
+		try{
+			Fornecedor fornecedores = new Fornecedor();
+			Connection connection = null;
+			try {
+				connection = JdbUtil.getConnection();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			FornecedorJbdcDAO fornecedorJbdcDAO = new FornecedorJbdcDAO(connection);
+			dados = FornecedorJbdcDAO.carregar();
+		}
+		catch(SQLException e1){
+			e1.printStackTrace();
+		}
 		
 		ImageIcon imagem = new ImageIcon("cafeefornecedores.png");
 	    Image img = imagem.getImage();
@@ -68,6 +92,56 @@ public class Fornecedores extends JFrame{
 		forns = new JTable(dados,colunas);
 		scroll = new JScrollPane(forns);
 		scroll.setBounds(50,350,950,350);
+		
+		forns.requestFocus();
+		forns.changeSelection(0,0,false, false);
+		
+		int row = forns.getSelectedRow();
+		String selected = forns.getValueAt(row, 0).toString();
+		int row1 = Integer.parseInt(selected);
+		
+		add.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){								
+				try{
+					Fornecedor fornecedor = new Fornecedor();
+					Connection connection = null;
+					try {
+						connection = JdbUtil.getConnection();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					fornecedor.setnome(forn.getText());
+					fornecedor.settelefone(tel.getText());
+					fornecedor.setendereco(end.getText());
+					fornecedor.setdescricao(desc.getText());
+					FornecedorJbdcDAO fornecedorJbdcDAO = new FornecedorJbdcDAO(connection);
+					fornecedorJbdcDAO.salvar(fornecedor);
+				}
+				catch(SQLException e1){
+					e1.printStackTrace();
+				}
+			}
+	    });
+		rem.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){								
+				try{
+					Fornecedor fornecedor = new Fornecedor();
+					Connection connection = null;
+					try {
+						connection = JdbUtil.getConnection();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					FornecedorJbdcDAO fornecedorJbdcDAO = new FornecedorJbdcDAO(connection);
+					fornecedorJbdcDAO.excluir(row1);
+				}
+				catch(SQLException e1){
+					e1.printStackTrace();
+				}
+			}
+	    });
 		
 		tela.add(barra);
 		tela.add(imaa);
